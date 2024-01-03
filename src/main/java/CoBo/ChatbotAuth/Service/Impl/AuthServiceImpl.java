@@ -3,6 +3,7 @@ package CoBo.ChatbotAuth.Service.Impl;
 import CoBo.ChatbotAuth.Config.Jwt.JwtTokenProvider;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthGetLoginRes;
 import CoBo.ChatbotAuth.Data.Entity.User;
+import CoBo.ChatbotAuth.Data.Enum.RegisterStateEnum;
 import CoBo.ChatbotAuth.Repository.UserRepository;
 import CoBo.ChatbotAuth.Service.AuthService;
 import com.google.gson.JsonElement;
@@ -54,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
         AuthGetLoginRes authGetLoginRes = AuthGetLoginRes.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .registerStateEnum(user.getRegisterState())
                 .build();
 
         return new ResponseEntity<>(authGetLoginRes, HttpStatus.OK);
@@ -61,16 +63,31 @@ public class AuthServiceImpl implements AuthService {
 
     private ResponseEntity<AuthGetLoginRes> register(Integer kakaoId){
 
-        return null;
+        String accessToken = jwtTokenProvider.createAccessToken(kakaoId);
+        String refreshToken = jwtTokenProvider.createRefreshToken(kakaoId);
+
+        User user = User.builder()
+                .kakaoId(kakaoId)
+                .registerState(RegisterStateEnum.INACTIVE)
+                .refreshToken(refreshToken)
+                .build();
+
+        userRepository.save(user);
+
+        AuthGetLoginRes authGetLoginRes = AuthGetLoginRes.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .registerStateEnum(RegisterStateEnum.INACTIVE)
+                .build();
+
+
+        return new ResponseEntity<>(authGetLoginRes, HttpStatus.CREATED);
     }
 
     private Integer getKakaoId(String kakaoAccessToken) throws IOException {
         JsonElement element = getJsonElementByAccessToken(kakaoAccessToken);
-        Integer id = element.getAsJsonObject().get("id").getAsInt();
 
-        log.info("로그인 시도하는 유저의 KAKAO ID : {}", id);
-
-        return id;
+        return element.getAsJsonObject().get("id").getAsInt();
     }
 
     private JsonElement getJsonElementByAccessToken(String token) throws IOException {

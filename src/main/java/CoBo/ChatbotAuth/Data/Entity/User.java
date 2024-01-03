@@ -31,12 +31,13 @@ public class User {
     private RegisterStateEnum registerState;
 
     @Builder
-    public User(Integer kakaoId, Integer studentId, String name, String email, String refreshToken, RoleEnum role) {
+    public User(Integer kakaoId, Integer studentId, String name, String email, String refreshToken, RoleEnum role, RegisterStateEnum registerState) {
         this.kakaoId = kakaoId;
         this.studentId = studentId;
         this.name = name;
         this.email = email;
         this.refreshToken = refreshToken;
         this.role = role;
+        this.registerState = registerState;
     }
 }
