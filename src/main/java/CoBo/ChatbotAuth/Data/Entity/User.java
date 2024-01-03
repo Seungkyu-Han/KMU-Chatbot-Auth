@@ -1,5 +1,6 @@
 package CoBo.ChatbotAuth.Data.Entity;
 
+import CoBo.ChatbotAuth.Data.Enum.RegisterStateEnum;
 import CoBo.ChatbotAuth.Data.Enum.RoleEnum;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -23,8 +24,11 @@ public class User {
 
     private String refreshToken;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private RoleEnum role;
+
+    @Enumerated(EnumType.STRING)
+    private RegisterStateEnum registerState;
 
     @Builder
     public User(Integer kakaoId, Integer studentId, String name, String email, String refreshToken, RoleEnum role) {
