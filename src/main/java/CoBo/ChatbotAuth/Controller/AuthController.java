@@ -1,6 +1,8 @@
 package CoBo.ChatbotAuth.Controller;
 
+import CoBo.ChatbotAuth.Data.Dto.Auth.Req.AuthPostReissueReq;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthGetLoginRes;
+import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthPostReissueRes;
 import CoBo.ChatbotAuth.Service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,10 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -39,4 +38,15 @@ public class AuthController {
     public ResponseEntity<AuthGetLoginRes> getLogin(@RequestParam String code) throws IOException{
         return authService.getLogin(code);
     }
+
+    @PostMapping("/reissue")
+    @Operation(summary = "AccessToken 재발급 API", description = "AccessToken 재발급")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공",
+            content = @Content(schema = @Schema(implementation = AuthPostReissueRes.class)))
+    })
+    public ResponseEntity<AuthPostReissueRes> postReissue(@RequestBody AuthPostReissueReq authPostReissueReq){
+        return authService.postReissue(authPostReissueReq);
+    }
+
 }
