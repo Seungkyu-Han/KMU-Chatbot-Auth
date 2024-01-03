@@ -27,7 +27,7 @@ public class ProfessorChat {
 
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private StateEnum state;
 
     @Builder
