@@ -2,9 +2,7 @@ package CoBo.ChatbotAuth.Data.Entity;
 
 import CoBo.ChatbotAuth.Data.Entity.Embedded.ChatId;
 import CoBo.ChatbotAuth.Data.Enum.StateEnum;
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,6 +27,7 @@ public class ProfessorChat {
 
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.ORDINAL)
     private StateEnum state;
 
     @Builder
