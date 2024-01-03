@@ -21,18 +21,18 @@ public class User {
 
     private String email;
 
-    private String accessToken;
+    private String refreshToken;
 
     @Enumerated(EnumType.ORDINAL)
     private RoleEnum role;
 
     @Builder
-    public User(Integer kakaoId, Integer studentId, String name, String email, String accessToken, RoleEnum role) {
+    public User(Integer kakaoId, Integer studentId, String name, String email, String refreshToken, RoleEnum role) {
         this.kakaoId = kakaoId;
         this.studentId = studentId;
         this.name = name;
         this.email = email;
-        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.role = role;
     }
 }
