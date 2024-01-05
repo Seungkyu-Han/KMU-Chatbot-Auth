@@ -1,6 +1,7 @@
 package CoBo.ChatbotAuth.Service.Impl;
 
 import CoBo.ChatbotAuth.Config.Jwt.JwtTokenProvider;
+import CoBo.ChatbotAuth.Data.Dto.Auth.Req.AuthPostRegisterReq;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Req.AuthPostReissueReq;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthGetLoginRes;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthPostReissueRes;
@@ -76,6 +77,11 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         return new ResponseEntity<>(authPostReissueRes, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<HttpStatus> postRegister(AuthPostRegisterReq authPostRegisterReq) {
+        return null;
     }
 
     private ResponseEntity<AuthGetLoginRes> register(Integer kakaoId){

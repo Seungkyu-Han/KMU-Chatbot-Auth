@@ -1,5 +1,6 @@
 package CoBo.ChatbotAuth.Controller;
 
+import CoBo.ChatbotAuth.Data.Dto.Auth.Req.AuthPostRegisterReq;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Req.AuthPostReissueReq;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthGetLoginRes;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthPostReissueRes;
@@ -12,7 +13,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,4 +52,9 @@ public class AuthController {
         return authService.postReissue(authPostReissueReq);
     }
 
+    @PostMapping("/register")
+    @Operation(summary = "INACTIVE 상태에서 초기 정보를 넣는 API", description = "모든 데이터가 NOT NULL 이어야 하고 사용하고 나면 ACTIVE 상태로 변경\n이메일 인증이 완료된 상태에서만 사용 가능")
+    public ResponseEntity<HttpStatus> postRegister(@Valid @RequestBody AuthPostRegisterReq authPostRegisterReq){
+        return authService.postRegister(authPostRegisterReq);
+    }
 }
