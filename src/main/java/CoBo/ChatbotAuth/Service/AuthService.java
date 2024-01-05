@@ -15,5 +15,5 @@ public interface AuthService {
 
     ResponseEntity<AuthPostReissueRes> postReissue(AuthPostReissueReq authPostReissueReq);
 
-    ResponseEntity<HttpStatus> postRegister(AuthPostRegisterReq authPostRegisterReq);
+    ResponseEntity<HttpStatus> postRegister(AuthPostRegisterReq authPostRegisterReq, String authorization);
 }

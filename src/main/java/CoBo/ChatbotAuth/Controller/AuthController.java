@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +55,15 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "INACTIVE 상태에서 초기 정보를 넣는 API", description = "모든 데이터가 NOT NULL 이어야 하고 사용하고 나면 ACTIVE 상태로 변경\n이메일 인증이 완료된 상태에서만 사용 가능")
-    public ResponseEntity<HttpStatus> postRegister(@Valid @RequestBody AuthPostRegisterReq authPostRegisterReq){
-        return authService.postRegister(authPostRegisterReq);
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = @Content()),
+            @ApiResponse(responseCode = "401", description = "이메일 인증이 완료되지 않았습니다.",
+                    content = @Content()),
+            @ApiResponse(responseCode = "403", description = "토큰이 없습니다.",
+                    content = @Content())
+    })
+    public ResponseEntity<HttpStatus> postRegister(@Valid @RequestBody AuthPostRegisterReq authPostRegisterReq, @Valid @NotNull @Parameter(hidden = true) @RequestHeader("Authorization") String authorization){
+        return authService.postRegister(authPostRegisterReq, authorization);
     }
 }

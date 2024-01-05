@@ -6,8 +6,11 @@ import CoBo.ChatbotAuth.Data.Dto.Auth.Req.AuthPostReissueReq;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthGetLoginRes;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthPostReissueRes;
 import CoBo.ChatbotAuth.Data.Entity.User;
+import CoBo.ChatbotAuth.Data.Entity.ValidEmail;
 import CoBo.ChatbotAuth.Data.Enum.RegisterStateEnum;
+import CoBo.ChatbotAuth.Data.Enum.RoleEnum;
 import CoBo.ChatbotAuth.Repository.UserRepository;
+import CoBo.ChatbotAuth.Repository.ValidEmailRepository;
 import CoBo.ChatbotAuth.Service.AuthService;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -35,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
     private String redirect_uri;
 
     private final UserRepository userRepository;
+    private final ValidEmailRepository validEmailRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -80,8 +85,28 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<HttpStatus> postRegister(AuthPostRegisterReq authPostRegisterReq) {
-        return null;
+    public ResponseEntity<HttpStatus> postRegister(AuthPostRegisterReq authPostRegisterReq, String authorization) {
+
+        Optional<ValidEmail> validEmail = validEmailRepository.findById(authPostRegisterReq.getEmail());
+
+        if(validEmail.isEmpty() || !validEmail.get().getIsValid())
+            throw new NoSuchElementException();
+
+        Integer userId = jwtTokenProvider.getUserId(authorization.split(" ")[1]);
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if(optionalUser.isEmpty())
+            throw new NoSuchElementException();
+
+        optionalUser.get().setName(authPostRegisterReq.getName());
+        optionalUser.get().setEmail(authPostRegisterReq.getEmail());
+        optionalUser.get().setStudentId(authPostRegisterReq.getStudentId());
+        optionalUser.get().setRegisterState(RegisterStateEnum.ACTIVE);
+
+        userRepository.save(optionalUser.get());
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private ResponseEntity<AuthGetLoginRes> register(Integer kakaoId){
@@ -93,6 +118,7 @@ public class AuthServiceImpl implements AuthService {
                 .kakaoId(kakaoId)
                 .registerState(RegisterStateEnum.INACTIVE)
                 .refreshToken(refreshToken)
+                .role(RoleEnum.STUDENT)
                 .build();
 
         userRepository.save(user);
