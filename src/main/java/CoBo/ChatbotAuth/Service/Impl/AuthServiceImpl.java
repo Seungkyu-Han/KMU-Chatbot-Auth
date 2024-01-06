@@ -70,13 +70,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<AuthPostReissueRes> postReissue(String authorization) {
-        User user = userRepository.findByRefreshToken(authorization.split(" ")[1]);
+        String token = authorization.split(" ")[1];
+        User user = userRepository.findByRefreshToken(token);
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getKakaoId());
 
         AuthPostReissueRes authPostReissueRes = AuthPostReissueRes.builder()
                 .accessToken(accessToken)
-                .refreshToken(authorization)
+                .refreshToken(token)
                 .registerStateEnum(user.getRegisterState())
                 .build();
 
