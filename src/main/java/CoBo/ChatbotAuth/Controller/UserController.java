@@ -24,11 +24,15 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping("")
-    @Operation(summary = "사용자 정보 수정 API", description = "모든 데이터가 NOT NULL 이어야 하고 이메일 인증이 완료된 상태에서만 사용 가능")
+    @Operation(summary = "사용자 정보 수정 API", description = "데이터에 NULL 있으면 에러 발생")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공",
                     content = @Content()),
-            @ApiResponse(responseCode = "403", description = "토큰이 없습니다.",
+            @ApiResponse(responseCode = "401", description = "존재하지 않는 사용자입니다.",
+                    content = @Content()),
+            @ApiResponse(responseCode = "403", description = "유효하지 않은 토큰입니다.",
+                    content = @Content()),
+            @ApiResponse(responseCode = "412", description = "유효하지 않은 데이터입니다.",
                     content = @Content())
     })
     public ResponseEntity<HttpStatus> put(@Valid @RequestBody UserPutReq userPutReq, @Parameter(hidden = true) Authentication authentication) {
