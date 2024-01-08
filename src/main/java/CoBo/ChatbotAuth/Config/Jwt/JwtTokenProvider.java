@@ -1,5 +1,8 @@
 package CoBo.ChatbotAuth.Config.Jwt;
 
+import CoBo.ChatbotAuth.Data.Entity.User;
+import CoBo.ChatbotAuth.Data.Enum.RegisterStateEnum;
+import CoBo.ChatbotAuth.Data.Enum.RoleEnum;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -27,6 +30,22 @@ public class JwtTokenProvider {
                 .get("userId", Integer.class);
     }
 
+    public String getUserRole(String token){
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userRole", String.class);
+    }
+
+    public String getUserState(String token){
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userState", String.class);
+    }
+
     public boolean isAccessToken(String token) throws MalformedJwtException{
         return Jwts.parser()
                 .setSigningKey(secretKey)
@@ -34,17 +53,19 @@ public class JwtTokenProvider {
                 .getHeader().get("type").toString().equals("access");
     }
 
-    public String createAccessToken(Integer userId){
-        return createJwtToken(userId, "access", accessTokenValidTime);
+    public String createAccessToken(User user){
+        return createJwtToken(user.getKakaoId(), user.getRole(), user.getRegisterState(),"access", accessTokenValidTime);
     }
 
-    public String createRefreshToken(Integer userId){
-        return createJwtToken(userId, "refresh", refreshTokenValidTime);
+    public String createRefreshToken(User user){
+        return createJwtToken(user.getKakaoId(), user.getRole(), user.getRegisterState(), "refresh", refreshTokenValidTime);
     }
 
-    private String createJwtToken(Integer userId, String type, Long tokenValidTime){
+    private String createJwtToken(Integer userId, RoleEnum role, RegisterStateEnum registerState, String type, Long tokenValidTime){
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
+        claims.put("userRole", role);
+        claims.put("userState", registerState);
 
         return Jwts.builder()
                 .setHeaderParam("type", type)

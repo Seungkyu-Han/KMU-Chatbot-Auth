@@ -52,8 +52,8 @@ public class AuthServiceImpl implements AuthService {
 
         User user = optionalUser.get();
 
-        String accessToken = jwtTokenProvider.createAccessToken(user.getKakaoId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(user.getKakaoId());
+        String accessToken = jwtTokenProvider.createAccessToken(user);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
         user.setRefreshToken(refreshToken);
 
@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         String token = authorization.split(" ")[1];
         User user = userRepository.findByRefreshToken(token);
 
-        String accessToken = jwtTokenProvider.createAccessToken(user.getKakaoId());
+        String accessToken = jwtTokenProvider.createAccessToken(user);
 
         AuthPostReissueRes authPostReissueRes = AuthPostReissueRes.builder()
                 .accessToken(accessToken)
@@ -111,15 +111,14 @@ public class AuthServiceImpl implements AuthService {
 
     private ResponseEntity<AuthGetLoginRes> register(Integer kakaoId){
 
-        String accessToken = jwtTokenProvider.createAccessToken(kakaoId);
-        String refreshToken = jwtTokenProvider.createRefreshToken(kakaoId);
-
         User user = User.builder()
                 .kakaoId(kakaoId)
                 .registerState(RegisterStateEnum.INACTIVE)
-                .refreshToken(refreshToken)
                 .role(RoleEnum.STUDENT)
                 .build();
+
+        String accessToken = jwtTokenProvider.createAccessToken(user);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
         userRepository.save(user);
 
