@@ -30,9 +30,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if(authorization != null && authorization.startsWith("Bearer ")){
             String token = authorization.split(" ")[1];
-            if(jwtTokenProvider.isAccessToken(token)){
+            if(jwtTokenProvider.isAccessToken(token) && jwtTokenProvider.isActiveState(token)){
                 Integer userId = jwtTokenProvider.getUserId(token);
-                SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority("USER"))));
+                SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userId, null, List.of(new SimpleGrantedAuthority(jwtTokenProvider.getUserRole(token)))));
             }
         }
 

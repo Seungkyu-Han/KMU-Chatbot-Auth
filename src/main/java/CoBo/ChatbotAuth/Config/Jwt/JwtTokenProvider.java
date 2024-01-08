@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 
 @Component
 public class JwtTokenProvider {
@@ -38,12 +39,12 @@ public class JwtTokenProvider {
                 .get("userRole", String.class);
     }
 
-    public String getUserState(String token){
-        return Jwts.parser()
+    public Boolean isActiveState(String token){
+        return Objects.equals(Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody()
-                .get("userState", String.class);
+                .get("userState", String.class), RegisterStateEnum.ACTIVE.toString());
     }
 
     public boolean isAccessToken(String token) throws MalformedJwtException{
