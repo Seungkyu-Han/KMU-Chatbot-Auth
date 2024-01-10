@@ -2,7 +2,6 @@ package CoBo.ChatbotAuth.Config.Jwt;
 
 import CoBo.ChatbotAuth.Data.Entity.User;
 import CoBo.ChatbotAuth.Data.Enum.RegisterStateEnum;
-import CoBo.ChatbotAuth.Data.Enum.RoleEnum;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -55,18 +54,20 @@ public class JwtTokenProvider {
     }
 
     public String createAccessToken(User user){
-        return createJwtToken(user.getKakaoId(), user.getRole(), user.getRegisterState(),"access", accessTokenValidTime);
+        return createJwtToken(user,"access", accessTokenValidTime);
     }
 
     public String createRefreshToken(User user){
-        return createJwtToken(user.getKakaoId(), user.getRole(), user.getRegisterState(), "refresh", refreshTokenValidTime);
+        return createJwtToken(user, "refresh", refreshTokenValidTime);
     }
 
-    private String createJwtToken(Integer userId, RoleEnum role, RegisterStateEnum registerState, String type, Long tokenValidTime){
+    private String createJwtToken(User user, String type, Long tokenValidTime){
         Claims claims = Jwts.claims();
-        claims.put("userId", userId);
-        claims.put("userRole", role);
-        claims.put("userState", registerState);
+        claims.put("userId", user.getKakaoId());
+        claims.put("userRole", user.getRole());
+        claims.put("userState", user.getRegisterState());
+        claims.put("userStudentId", user.getStudentId());
+        claims.put("userName", user.getName());
 
         return Jwts.builder()
                 .setHeaderParam("type", type)
