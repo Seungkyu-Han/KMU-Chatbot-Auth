@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> optionalUser = userRepository.findById(kakaoId);
 
         if(optionalUser.isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         optionalUser.get().setName(userPutReq.getName());
         // optionalUser.get().setEmail(userPutReq.getEmail());

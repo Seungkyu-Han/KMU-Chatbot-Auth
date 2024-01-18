@@ -17,8 +17,8 @@ public class UserExceptionHandler {
         return new ResponseEntity<>("유효하지 않은 데이터입니다.", HttpStatus.PRECONDITION_FAILED);
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<String> UserNoSuchElementExceptionHandler(){
-        return new ResponseEntity<>("존재하지 않는 사용자입니다.", HttpStatus.FORBIDDEN);
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> UserIllegalStateExceptionHandler(){
+        return new ResponseEntity<>("존재하지 않는 사용자입니다.", HttpStatus.UNAUTHORIZED);
     }
 }
