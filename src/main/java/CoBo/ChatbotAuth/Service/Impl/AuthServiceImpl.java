@@ -97,7 +97,7 @@ public class AuthServiceImpl implements AuthService {
         Optional<User> optionalUser = userRepository.findById(userId);
 
         if(optionalUser.isEmpty())
-            throw new NoSuchElementException();
+            throw new NullPointerException();
 
         optionalUser.get().setName(authPostRegisterReq.getName());
         optionalUser.get().setEmail(authPostRegisterReq.getEmail());
