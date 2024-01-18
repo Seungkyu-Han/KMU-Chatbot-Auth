@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -27,7 +26,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> optionalUser = userRepository.findById(kakaoId);
 
         if(optionalUser.isEmpty())
-            throw new NoSuchElementException();
+            throw new IllegalStateException();
 
         optionalUser.get().setName(userPutReq.getName());
         // optionalUser.get().setEmail(userPutReq.getEmail());
