@@ -24,6 +24,6 @@ public class AuthExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> AuthNoSuchElementExceptionHandler(){
-        return new ResponseEntity<>("인증이 실패한 이메일입니다.", HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>("인증이 실패한 이메일입니다.", HttpStatus.UNAUTHORIZED);
     }
 }
