@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,7 +23,8 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info().title("KMU-Chat bot"))
                 .components(new Components().addSecuritySchemes("Bearer", securityScheme))
-                .security(Collections.singletonList(securityRequirement));
+                .security(Collections.singletonList(securityRequirement))
+                .addServersItem(new Server().url("/"));
     }
 
 
