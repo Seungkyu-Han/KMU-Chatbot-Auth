@@ -42,6 +42,20 @@ public class AuthController {
         return authService.getLogin(code);
     }
 
+    @GetMapping("/login-admin")
+    @Operation(summary = "관리자 로그인 API", description = "카카오 코드를 이용하여 관리자 로그인")
+    @Parameters({
+            @Parameter(name = "code", description = "카카오 로그인 code")
+    })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = @Content(schema = @Schema(implementation = AuthGetLoginRes.class)))
+    })
+    public ResponseEntity<AuthGetLoginRes> getLoginAdmin(@RequestParam String code) throws IOException{
+        return authService.getLoginAdmin(code);
+    }
+
+
     @PostMapping("/reissue")
     @Operation(summary = "AccessToken 재발급 API", description = "AccessToken 재발급")
     @ApiResponses({
