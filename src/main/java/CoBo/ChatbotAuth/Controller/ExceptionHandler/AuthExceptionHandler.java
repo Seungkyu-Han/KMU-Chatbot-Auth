@@ -17,10 +17,10 @@ public class AuthExceptionHandler {
         return new ResponseEntity<>("존재하지 않는 사용자입니다.", HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<String> AuthIOExceptionHandler(){
-        return new ResponseEntity<>("카카오 서버 인증 중에 문제가 발생했습니다.", HttpStatus.BAD_GATEWAY);
-    }
+//    @ExceptionHandler(IOException.class)
+//    public ResponseEntity<String> AuthIOExceptionHandler(){
+//        return new ResponseEntity<>("카카오 서버 인증 중에 문제가 발생했습니다.", HttpStatus.BAD_GATEWAY);
+//    }
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> AuthNoSuchElementExceptionHandler(){
