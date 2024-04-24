@@ -131,7 +131,6 @@ public class AuthServiceImpl implements AuthService {
         if(optionalUser.isEmpty())
             throw new NullPointerException();
 
-        optionalUser.get().setName(authPostRegisterReq.getName());
         optionalUser.get().setEmail(authPostRegisterReq.getEmail());
         optionalUser.get().setStudentId(authPostRegisterReq.getStudentId());
         optionalUser.get().setRegisterState(RegisterStateEnum.ACTIVE);

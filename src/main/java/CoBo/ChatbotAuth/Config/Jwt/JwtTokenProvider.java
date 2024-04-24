@@ -67,7 +67,6 @@ public class JwtTokenProvider {
         claims.put("userRole", user.getRole());
         claims.put("userState", user.getRegisterState());
         claims.put("userStudentId", user.getStudentId());
-        claims.put("userName", user.getName());
 
         return Jwts.builder()
                 .setHeaderParam("type", type)

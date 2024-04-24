@@ -17,9 +17,6 @@ public class User {
 
     private Integer studentId;
 
-    @Column(length = 5)
-    private String name;
-
     private String email;
 
     private String refreshToken;
@@ -31,10 +28,9 @@ public class User {
     private RegisterStateEnum registerState;
 
     @Builder
-    public User(Integer kakaoId, Integer studentId, String name, String email, String refreshToken, RoleEnum role, RegisterStateEnum registerState) {
+    public User(Integer kakaoId, Integer studentId, String email, String refreshToken, RoleEnum role, RegisterStateEnum registerState) {
         this.kakaoId = kakaoId;
         this.studentId = studentId;
-        this.name = name;
         this.email = email;
         this.refreshToken = refreshToken;
         this.role = role;

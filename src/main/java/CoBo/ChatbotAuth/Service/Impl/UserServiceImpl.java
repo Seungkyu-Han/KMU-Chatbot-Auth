@@ -29,7 +29,6 @@ public class UserServiceImpl implements UserService {
         if(optionalUser.isEmpty())
             throw new NoSuchElementException();
 
-        optionalUser.get().setName(userPutReq.getName());
         // optionalUser.get().setEmail(userPutReq.getEmail());
         optionalUser.get().setStudentId(userPutReq.getStudentId());
 
