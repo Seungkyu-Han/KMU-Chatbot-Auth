@@ -12,10 +12,6 @@ public class AuthPostRegisterReq {
     private Integer studentId;
 
     @NotNull
-    @Schema(description = "이름", example = "킹승규")
-    private String name;
-
-    @NotNull
     @Schema(description = "이메일", example = "trust1204@stu.kmu.ac.kr")
     private String email;
 }
