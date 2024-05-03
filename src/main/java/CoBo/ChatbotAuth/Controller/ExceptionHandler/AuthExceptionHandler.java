@@ -1,6 +1,7 @@
 package CoBo.ChatbotAuth.Controller.ExceptionHandler;
 
 import CoBo.ChatbotAuth.Controller.AuthController;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,5 +26,10 @@ public class AuthExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> AuthNoSuchElementExceptionHandler(){
         return new ResponseEntity<>("인증이 실패한 이메일입니다.", HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<String> DuplicateKeyExceptionExceptionHandler(){
+        return new ResponseEntity<>("현재 존재하는 이메일입니다.", HttpStatus.CONFLICT);
     }
 }

@@ -16,6 +16,7 @@ import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -118,6 +119,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<HttpStatus> postRegister(AuthPostRegisterReq authPostRegisterReq, String authorization) {
+
+        if(userRepository.existsByEmail(authPostRegisterReq.getEmail()))
+            throw new DuplicateKeyException("해당 이메일이 있습니다.");
 
         Optional<ValidEmail> validEmail = validEmailRepository.findById(authPostRegisterReq.getEmail());
 
