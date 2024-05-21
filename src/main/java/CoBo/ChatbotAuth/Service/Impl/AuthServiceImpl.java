@@ -25,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -256,10 +257,11 @@ public class AuthServiceImpl implements AuthService {
         try{
             jsonRequest = objectMapper.writeValueAsString(authSmtpReq);
         }catch (JsonProcessingException jsonProcessingException){
+            log.error("jsonProcessingException");
             return;
         }
 
-        restTemplate.postForLocation(emailServerUrl + emailEndPoint, new HttpEntity<>(jsonRequest, httpHeaders));
-
+        URI returnValue = restTemplate.postForLocation(emailServerUrl + emailEndPoint, new HttpEntity<>(jsonRequest, httpHeaders));
+        log.info("REQUEST EMAIL: {} {}",  email, returnValue);
     }
 }
