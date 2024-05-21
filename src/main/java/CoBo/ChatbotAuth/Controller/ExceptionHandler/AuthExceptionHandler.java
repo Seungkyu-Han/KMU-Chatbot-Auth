@@ -29,7 +29,7 @@ public class AuthExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<String> DuplicateKeyExceptionExceptionHandler(){
-        return new ResponseEntity<>("현재 존재하는 이메일입니다.", HttpStatus.CONFLICT);
+    public ResponseEntity<String> DuplicateKeyExceptionExceptionHandler(DuplicateKeyException duplicateKeyException){
+        return new ResponseEntity<>(duplicateKeyException.getMessage(), HttpStatus.CONFLICT);
     }
 }
