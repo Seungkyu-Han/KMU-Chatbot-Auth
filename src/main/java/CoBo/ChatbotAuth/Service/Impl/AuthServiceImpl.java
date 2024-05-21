@@ -9,7 +9,6 @@ import CoBo.ChatbotAuth.Data.Entity.User;
 import CoBo.ChatbotAuth.Data.Enum.RegisterStateEnum;
 import CoBo.ChatbotAuth.Data.Enum.RoleEnum;
 import CoBo.ChatbotAuth.Repository.UserRepository;
-import CoBo.ChatbotAuth.Repository.ValidEmailRepository;
 import CoBo.ChatbotAuth.Service.AuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,14 +20,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
@@ -50,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private String emailEndPoint;
 
     private final UserRepository userRepository;
-    private final ValidEmailRepository validEmailRepository;
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final JwtTokenProvider jwtTokenProvider;
 
     private final ObjectMapper objectMapper;
@@ -150,7 +151,14 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(optionalUser.get());
 
-        CompletableFuture.runAsync(() -> requestEmail(authPostRegisterReq.getEmail()));
+        CompletableFuture.runAsync(() -> {
+            try {
+                requestEmail(authPostRegisterReq.getEmail());
+                log.info("CALL EMAIL ASYNC");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, executorService);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -244,6 +252,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void requestEmail(String email){
+        log.info("REQUEST EMAIL: {}", email);
+
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -261,7 +271,12 @@ public class AuthServiceImpl implements AuthService {
             return;
         }
 
-        URI returnValue = restTemplate.postForLocation(emailServerUrl + emailEndPoint, new HttpEntity<>(jsonRequest, httpHeaders));
-        log.info("REQUEST EMAIL: {} {}",  email, returnValue);
+        try {
+            HttpEntity<String> request = new HttpEntity<>(jsonRequest, httpHeaders);
+            ResponseEntity<String> response = restTemplate.postForEntity(emailServerUrl + emailEndPoint, request, String.class);
+            log.info("END REQUEST EMAIL: {} {}", email, response.getStatusCode());
+        } catch (RestClientException e) {
+            log.error("RestClientException: {}", e.getMessage());
+        }
     }
 }
