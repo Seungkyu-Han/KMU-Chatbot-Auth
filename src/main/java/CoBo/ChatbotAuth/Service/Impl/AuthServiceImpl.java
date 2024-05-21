@@ -2,30 +2,34 @@ package CoBo.ChatbotAuth.Service.Impl;
 
 import CoBo.ChatbotAuth.Config.Jwt.JwtTokenProvider;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Req.AuthPostRegisterReq;
+import CoBo.ChatbotAuth.Data.Dto.Auth.Req.AuthSmtpReq;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthGetLoginRes;
 import CoBo.ChatbotAuth.Data.Dto.Auth.Res.AuthPostReissueRes;
 import CoBo.ChatbotAuth.Data.Entity.User;
-import CoBo.ChatbotAuth.Data.Entity.ValidEmail;
 import CoBo.ChatbotAuth.Data.Enum.RegisterStateEnum;
 import CoBo.ChatbotAuth.Data.Enum.RoleEnum;
 import CoBo.ChatbotAuth.Repository.UserRepository;
-import CoBo.ChatbotAuth.Repository.ValidEmailRepository;
 import CoBo.ChatbotAuth.Service.AuthService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
@@ -40,9 +44,17 @@ public class AuthServiceImpl implements AuthService {
     @Value("${kakao.auth.admin_redirect_uri}")
     private String admin_redirect_uri;
 
+    @Value("${email.server}")
+    private String emailServerUrl;
+
+    @Value("${email.endPoint}")
+    private String emailEndPoint;
+
     private final UserRepository userRepository;
-    private final ValidEmailRepository validEmailRepository;
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public ResponseEntity<AuthGetLoginRes> getLogin(String code) throws IOException {
@@ -121,12 +133,10 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<HttpStatus> postRegister(AuthPostRegisterReq authPostRegisterReq, String authorization) {
 
         if(userRepository.existsByEmail(authPostRegisterReq.getEmail()))
-            throw new DuplicateKeyException("해당 이메일이 있습니다.");
+            throw new DuplicateKeyException("이미 사용 중인 이메일입니다.");
 
-        Optional<ValidEmail> validEmail = validEmailRepository.findById(authPostRegisterReq.getEmail());
-
-        if(validEmail.isEmpty() || !validEmail.get().getIsValid())
-            throw new NoSuchElementException();
+        if(userRepository.existsByStudentId(authPostRegisterReq.getStudentId()))
+            throw new DuplicateKeyException("이미 사용 중인 학번입니다.");
 
         Integer userId = jwtTokenProvider.getUserId(authorization.split(" ")[1]);
 
@@ -140,6 +150,15 @@ public class AuthServiceImpl implements AuthService {
         optionalUser.get().setRegisterState(RegisterStateEnum.ACTIVE);
 
         userRepository.save(optionalUser.get());
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                requestEmail(authPostRegisterReq.getEmail());
+                log.info("CALL EMAIL ASYNC");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, executorService);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -230,5 +249,34 @@ public class AuthServiceImpl implements AuthService {
         bufferedReader.close();
 
         return JsonParser.parseString(result.toString());
+    }
+
+    private void requestEmail(String email){
+        log.info("REQUEST EMAIL: {}", email);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        AuthSmtpReq authSmtpReq = AuthSmtpReq.builder().email(email).build();
+
+        String jsonRequest;
+
+        try{
+            jsonRequest = objectMapper.writeValueAsString(authSmtpReq);
+        }catch (JsonProcessingException jsonProcessingException){
+            log.error("jsonProcessingException");
+            return;
+        }
+
+        try {
+            HttpEntity<String> request = new HttpEntity<>(jsonRequest, httpHeaders);
+            ResponseEntity<String> response = restTemplate.postForEntity(emailServerUrl + emailEndPoint, request, String.class);
+            log.info("END REQUEST EMAIL: {} {}", email, response.getStatusCode());
+        } catch (RestClientException e) {
+            log.error("RestClientException: {}", e.getMessage());
+        }
     }
 }
